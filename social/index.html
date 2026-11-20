@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Corridor — Corporate Affairs & Social License</title>
+<link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="../shared/base.js"></script>
+<script src="../shared/art.js"></script>
+<script>
+function blockadeLost(S,day){ if(!S.set.blockade) return 0; const end=S.set.blockadeEnd||day; return Math.max(0,Math.min(day,end)-9); }
+
+window.CFG={
+  DOMAIN:"Corporate Affairs & Social License",
+  INTRO:{title:"A month on Peru's mining corridor",body:"You're the new VP of Corporate Affairs at a copper mine. Watch each scene, listen to the people involved, then make the call <b>you</b> would really make. Every option has a cost."},
+  ASK_LABEL:"Ask Lucía first",
+  END_TAG:"Day 30 · Your month is over",
+  INIT:{trust:40,gov:50,ship:100,morale:60},
+  METERS:[{k:"trust",label:"Community"},{k:"gov",label:"Government"},{label:"Shipments",f:S=>Math.max(0,S.v.ship-blockadeLost(S,S.day)*4)},{k:"morale",label:"Team"}],
+  TARGET:{stakeholder:80,integrity:80,strategic:70,pressure:65,adaptability:60,leadership:60,safety:60,financial:50},
+  NAMES:{nar:"Narrator",rosa:"Rosa · Ccollpa president",lucia:"Lucía · your community lead",carlos:"Carlos · VP Operations",vm:"Vice Minister",adv:"Community advisor",board:"The board"},
+  VOICE:{nar:{g:"f",p:1,r:1},rosa:{g:"f",p:.95,r:.92},lucia:{g:"f",p:1.2,r:1.05},carlos:{g:"m",p:.85,r:1.02},vm:{g:"m",p:.95,r:.95},adv:{g:"m",p:.75,r:.88},board:{g:"m",p:.9,r:.95}},
+  PORTRAITS:{
+    nar:{bg:"#333a46",skin:"#c99a72",hair:"#2b2b2b",top:"#555"},
+    rosa:{bg:"#b5562b",skin:"#8a5a3c",hair:"#1d1410",top:"#b5262b",extra:`<ellipse cx="40" cy="22" rx="22" ry="5" fill="#222"/><rect x="28" y="6" width="24" height="16" rx="8" fill="#222"/><path d="M22,36 q-4,18 2,30 M58,36 q4,18 -2,30" stroke="#1d1410" stroke-width="4" fill="none"/>`},
+    lucia:{bg:"#2a8f84",skin:"#a87452",hair:"#2b1a12",top:"#e0a83a",extra:`<path d="M24,30 q16,-22 32,0 v4 h-32z" fill="#2b1a12"/>`},
+    carlos:{bg:"#3c6fb0",skin:"#c99a72",hair:"#3a2a20",top:"#e8b33a",extra:`<path d="M22,30 a18,18 0 0 1 36,0 z" fill="#f2f2f2"/><rect x="20" y="28" width="40" height="4" fill="#ddd"/>`},
+    vm:{bg:"#7b6cc4",skin:"#b88560",hair:"#222",top:"#2b2b38",extra:`<path d="M40,62 l-4,6 4,14 4,-14z" fill="#b5262b"/>`},
+    adv:{bg:"#8a6d3b",skin:"#8a5a3c",hair:"#222",top:"#5a4a3c",extra:`<path d="M24,26 h32 v-6 a16,10 0 0 0 -32,0z" fill="#444"/>`},
+    board:{bg:"#444",skin:"#d0a882",hair:"#ccc",top:"#22252b"}
+  },
+  RED_FLAGS:["paid"],
+  FLAGS:{
+    promise:["Committed to jobs before checking whether operations could deliver them.","How do they handle pressure to promise more than they can deliver?"],
+    promise2:["Kept repeating an undeliverable promise instead of correcting it.","Ask about a time they had to walk back a commitment."],
+    force:["Leaned toward police or force to resolve a social conflict.","When do they think force is acceptable, and what did they learn from past cases?"],
+    riskConvoy:["Kept convoys running during a regional strike, putting drivers at risk.","How do they weigh production against people's safety?"],
+    paid:["Agreed to an informal payment to community leaders.","Serious integrity concern. Probe directly and check references."],
+    blame:["Publicly blamed protesters after a person was injured.","How do they communicate in a crisis when the company may be at fault?"],
+    broad:["Signed a broad, unfunded agreement under time pressure.","Commitment discipline: how do they make sure agreements can be kept?"],
+    burnout:["Kept an exhausted, threatened team member in the field.","How do they look after their team's wellbeing under pressure?"],
+    legalHeavy:["Put most effort into legal and security measures over dialogue.","What's their default playbook in a conflict?"],
+    allInOne:["Put almost everything into one area during the blockade.","How do they balance several fronts at once?"],
+    blameOps:["Blamed another department for their own over-promise.","Accountability: ask for an example of owning a mistake publicly."]
+  },
+  onChoose(S,sc){ if(sc.id==="s8"&&S.set.paid) S.set.blockadeEnd=16; if(sc.id==="s11"&&!S.set.blockadeEnd) S.set.blockadeEnd=S.set.broad?19:22; },
+  endStat:S=>[`${blockadeLost(S,30)}d`,"blockade length"],
+  endArt:S=>S.v.trust>=50?CFG.ART.s1(S):CFG.ART.s5(S),
+  ending(S){
+    const lost=blockadeLost(S,30); const p=[`The road was blocked for <b>${lost} days</b>, about <b>US$${lost*4}M</b> in delayed sales.`];
+    if(S.set.cleared) p.push("The forced clearance moved the blockade instead of ending it, and three people were hurt.");
+    if(S.set.paid) p.push("The secret payment opened the road early, then leaked and damaged trust with the communities and the government.");
+    if(S.set.broad) p.push("Six months later, 7 of the 18 commitments are already late, and a new blockade is being threatened.");
+    else if(!S.set.paid) p.push("Six months later, the 8 funded commitments are on track, and Ccollpa defends the agreement to its neighbors.");
+    p.push(S.v.trust>=60?"Community trust ended <b>strong</b>.":S.v.trust>=35?"Community trust ended <b>fragile</b>.":"Community trust ended <b>broken</b>.");
+    return p.join(" ");
+  },
+  ART:{
+    s1:()=>`${sky("day")}${mountains("day")}${ground("day")}${road("day")}${house(30,200,.9)}${house(70,196,.8)}${house(340,190,.6)}${truck(0,214,.9,"drive")}${truck(0,206,.7,"drive2")}${crowd(40,205,3,40,.8)}`,
+    s2:()=>`${room("#b07a4e","#7a5236")}<rect x="0" y="0" width="${W}" height="40" fill="#8a5c3a"/>${[60,160,260,340].map(x=>`<rect x="${x}" y="60" width="30" height="40" fill="#3c2a1e"/>`).join("")}
+       <rect x="150" y="70" width="100" height="26" fill="#f3efe6"/><text x="200" y="88" text-anchor="middle" font-size="12" font-weight="800" fill="#7a2b1e" font-family="sans-serif">ASAMBLEA</text>
+       ${person(200,180,2.2,"#b5262b",{hat:"bowler",arm:true})}${crowd(10,228,10,380,1.6)}${crowd(30,246,9,360,1.8)}`,
+    s3:()=>`${room("#4d5560","#2f343b")}${windowView(30,30,220,130,"day",sky("day")+mountains("day")+pit())}${person(320,200,2.4,"#3c6fb0",{hat:"helmet",arm:true,skin:"#c99a72"})}<rect x="260" y="200" width="140" height="12" fill="#26292e"/>`,
+    s4:(s)=> s.variant==="a"
+       ? `${sky("day")}${mountains("day")}${ground("day")}${road("day")}${banner(70,200,"PARO 72H")}${banner(250,196,"¡ESCÚCHENNOS!")}${crowd(40,212,14,320,1.1,{arms:true})}<rect x="330" y="160" width="50" height="14" fill="#e0443b"/><text x="355" y="171" font-size="8" fill="#fff" text-anchor="middle" font-weight="800" font-family="sans-serif">ROAD CLOSED</text>`
+       : `${sky("day")}${mountains("day")}${ground("day")}${spring()}${radioTower(60,190)}${bubble(170,60,"Mine poisoned the spring!!",0)}${bubble(200,92,"Is it true??",1,"#dcf8c6")}${bubble(160,124,"Don't drink the water",2)}${bubble(220,156,"Share with everyone",.5,"#dcf8c6")}`,
+    s5:(s)=>`${sky("dusk")}${mountains("dusk")}${ground("dusk")}${road("dusk")}${rocks(150,206)}${fire(130,210)}${fire(215,200,.8)}${crowd(100,222,s.v.trust>=55?6:14,220,1.1,{arms:true})}${stoppedTruck(300,188,.6)}${stoppedTruck(345,186,.55)}`,
+    s6:()=>`${room("#2a2f3a","#1c2028")}${windowView(30,40,140,100,"night")}${phoneBig(240,40,"Vice Minister","Lima · calling...")}`,
+    s7:()=>`${room("#6e5644","#4a3a2e")}${clipboard(125,30)}`,
+    s8:()=>`${room("#7c6a58","#4e4236")}${[40,330].map(x=>`<rect x="${x}" y="40" width="30" height="120" fill="#5a4a3c"/>`).join("")}${person(150,215,2.6,"#2b2b2b",{})}${person(250,215,2.6,"#8a6d3b",{hat:"bowler"})}${envelope(186,110)}`,
+    s9:()=>`${sky("night")}${mountains("night")}${ground("night")}${road("night")}${hospital(250,190)}${ambulance(150,205)}${stoppedTruck(20,215,.8,true)}${fire(110,214,.6)}`,
+    s10:(s)=>CFG.ART.s2(s),
+    s11:()=>`${room("#5f6b78","#3b434c")}<rect x="140" y="30" width="120" height="70" fill="#4a5563"/><text x="200" y="70" text-anchor="middle" font-size="11" fill="#e8e8e8" font-weight="700" font-family="sans-serif">MESA DE DIÁLOGO</text>${crowd(70,182,7,260,1.7)}${tableLong(185)}${papers(150,178)}${papers(225,178)}`,
+    s12:()=>`${room("#272b33","#1a1d22")}${windowView(250,30,120,90,"night")}<rect x="60" y="170" width="200" height="12" fill="#3a3f48"/>${person(150,172,2.2,"#2fb3a3",{})}
+       <g transform="translate(205,150)"><rect width="34" height="22" rx="3" fill="#15171c"/><rect x="3" y="3" width="28" height="15" fill="#3a5f8a" class="glow"/></g>${bubble(40,40,"you'll pay for this",0,"#e05a4f","#fff")}${bubble(70,72,"traitor",1.2,"#e05a4f","#fff")}${bubble(30,104,"we know where you live",2.2,"#e05a4f","#fff")}`,
+    s13:()=>`${room("#3a3f4a","#262a31")}${screenChart(125,25)}${crowd(60,190,8,290,1.6,{hats:false,ties:true,pal:["#2b2f3a","#3a3f4a","#1f2329","#4a3f3a"]})}${tableLong(190)}`
+  },
+  SCENES:[
+   {id:"s1",day:1,tag:"Day 1 · Arrival",
+    lines:()=>[N("You are the new VP of Corporate Affairs at Minera Altavista, a copper mine high in the southern Andes."),N("Every day, its trucks carry concentrate three hundred kilometers along a dirt road that crosses eleven communities."),Q("rosa","Your trucks' dust is killing our crops. We need to talk. Soon.")],
+    info:Q("lucia","Ccollpa signed an agreement with us in 2023. Honestly, I'm not sure we delivered everything."),
+    options:()=>[
+     {t:"Go to Ccollpa tomorrow. Listen first.",c:{stakeholder:2,leadership:1},s:{I:1},eff:{trust:8},out:"Rosa is surprised you came in person. The meeting is tense, but people talk openly."},
+     {t:"Invite Rosa to the mine office next week.",c:{strategic:1,stakeholder:-1},s:{S:1},eff:{trust:-3},out:"Rosa says she'll come with thirty people. You end up going to the village on day three anyway."},
+     {t:"Check every past commitment first.",c:{strategic:2,stakeholder:1},s:{A:1},eff:{trust:4},set:{reviewed:true},out:"Your team finds three of the seven commitments from 2023 are late. You arrive in Ccollpa well prepared."},
+     {t:"Water the road today, then call her.",c:{stakeholder:1,pressure:1},s:{D:.7,I:.3},eff:{trust:5,ship:-1},out:"The dust drops visibly. Rosa says: good. Now come and talk."}]},
+   {id:"s2",day:3,tag:"Day 3 · Community assembly",
+    lines:(s)=>[N("About sixty people fill the community hall. Rosa stands up."),Q("rosa","We want forty driving jobs for our young people, and payment for lost crops. If not, on Monday we close the road."),...(s.set.reviewed?[N("You know the water reservoir promised in 2023 is eighteen months late.")]:[]),N("Everyone is looking at you.")],
+    info:Q("lucia","Operations says training a new truck driver takes six months. They can safely take ten or twelve a year."),
+    options:()=>[
+     {t:"Agree to the 40 jobs. Stop the blockade.",c:{integrity:-2,strategic:-2,pressure:1},s:{D:1},eff:{trust:12},flag:"promise",out:"Applause. The threat is off for now. On the drive back, you wonder how operations will take it."},
+     {t:"Promise a realistic plan within 15 days.",c:{stakeholder:2,integrity:2,strategic:1},s:{S:.7,A:.3},eff:{trust:5},out:"Some people shout, but Rosa agrees to wait fifteen days. A small group says they'll block anyway."},
+     {t:"Say you need approval from Lima.",c:{stakeholder:-1,integrity:1},s:{S:1},eff:{trust:-8},out:"Rosa says: always Lima. Half the room walks out."},
+     {t:"Admit the company's late commitments, publicly.",c:{stakeholder:2,integrity:2,adaptability:1},s:{I:.7,A:.3},eff:(s)=>({trust:s.set.reviewed?10:2}),
+      out:(s)=>s.set.reviewed?"You name the reservoir and the dust study specifically. The room goes quiet. Rosa nods: finally someone says it.":"Without specifics it sounds like a speech. Someone asks: which commitments? You don't have the answer."}]},
+   {id:"s3",day:4,tag:"Day 4 · The mine",
+    lines:(s)=>[Q("carlos","If we give them anything, the other ten communities will want the same."),Q("carlos","If they block, we call the police to clear the road. We can't lose a week of shipments."),...(s.flags.promise?[Q("carlos","And forty drivers? I can train twelve a year. Who promised this?")]:[])],
+    options:()=>[
+     {t:"Agree. Prepare a police request.",c:{stakeholder:-2,safety:-1,pressure:1},s:{D:1},eff:{gov:4,trust:-6},flag:"force",out:"Within hours, Ccollpa hears that the mine is talking to the police."},
+     {t:"Push back. Get the CEO to back dialogue.",c:{stakeholder:1,leadership:1,integrity:1},s:{I:.6,D:.4},eff:{morale:-6,trust:2},out:"The CEO backs you, but Carlos is annoyed. You'll need him later."},
+     {t:"Joint plan: dialogue leads, ops prepares a non-violent plan B.",c:{strategic:2,leadership:2,stakeholder:1},s:{S:.6,A:.4},eff:{morale:6},out:"Carlos isn't thrilled, but he signs on. You now have a plan B that doesn't escalate."}]},
+   {id:"s4",day:6,tag:"Day 6 · Breaking news",
+    lines:(s)=>s.variant==="a"
+     ?[N("The regional federation calls a seventy-two hour paro regional against the national government."),N("Roads across the province will close. Mining is one of their complaints, but not the main one.")]
+     :[N("A local radio station says the mine contaminated Ccollpa's spring."),N("There is no data yet. The story is spreading fast on WhatsApp.")],
+    info:(s)=>s.variant==="a"?Q("lucia","Security says that during the last paro, two trucks were attacked on the night shift."):Q("lucia","There is a spring near the haul road. Dust is the likely issue, not chemicals. But we have no data."),
+    options:(s)=>s.variant==="a"?[
+     {t:"Stop convoys. Keep staff safe at camp.",c:{safety:2,adaptability:1},s:{S:1},eff:{ship:-8},out:"No incidents. The stockpile absorbs most of the lost shipments."},
+     {t:"Keep trucks moving at night with police.",c:{safety:-2,pressure:1,stakeholder:-1},s:{D:1},eff:{ship:-2,trust:-8},flag:"riskConvoy",out:"Two trucks are hit with stones. Nobody is hurt, but the video goes viral."},
+     {t:"Stop convoys, and meet Rosa informally.",c:{adaptability:2,stakeholder:2,safety:1},s:{I:1},eff:{ship:-8,trust:5},out:"Over coffee, Rosa tells you what really worries Ccollpa: water, more than jobs."}]:[
+     {t:"Deny it immediately.",c:{stakeholder:-1,pressure:1},s:{D:1},eff:{trust:-6},out:"Nobody believes a denial without data. The rumor grows."},
+     {t:"Joint water sampling with OEFA and the community.",c:{stakeholder:2,integrity:2,strategic:1},s:{A:.6,I:.4},eff:{trust:6,gov:3},out:"Sampling happens with community observers. Results in ten days."},
+     {t:"Go on the radio yourself.",c:{stakeholder:2,pressure:1,adaptability:1},s:{I:.7,D:.3},eff:{trust:5},out:"A tense interview, but people hear a real person instead of a press release."}]},
+   {id:"s5",day:9,tag:"Day 9 · Blockade",type:"alloc",allocPrompt:"SPLIT 10 POINTS FOR THE NEXT WEEK",
+    lines:(s)=>[...(s.v.trust>=55?[N("Despite your progress, a neighboring community, Huaylla, blocks the road. They say Ccollpa got attention and they didn't.")]:[N("Ccollpa and two neighboring communities block the road with rocks and burning tires. About two hundred people.")]),
+     N("The trucks stop. The port warehouse holds nine days of concentrate. Each day of delay costs about four million dollars."),N("You have ten points of your team's time and budget for the next week. How do you split them?")],
+    buckets:[{k:"dialogue",t:"Dialogue with communities",d:"Visits, working tables, listening",short:"Dialogue"},{k:"gov",t:"Government & Defensoría",d:"Mediators and authorities",short:"Government"},{k:"comms",t:"Transparent communication",d:"Radio, WhatsApp, open data",short:"Comms"},{k:"legal",t:"Legal & security",d:"Lawyers, complaints, security",short:"Legal/security"}],
+    score(v){ const spread=Object.values(v).filter(x=>x>0).length;
+      return {c:{stakeholder:v.dialogue>=3?2:(v.dialogue>=1?1:0),strategic:spread>=3?2:(spread===2?1:0),integrity:v.comms>=2?1:0,safety:(v.legal>=1&&v.legal<=3)?1:0},
+        ranges:{stakeholder:[0,2],strategic:[0,2],integrity:[0,1],safety:[0,1]},
+        style:{I:v.dialogue/10,S:v.gov/10,A:v.comms/10,D:v.legal/10},
+        eff:{trust:Math.round(v.dialogue*1.5+v.comms-Math.max(0,v.legal-3)*2),gov:v.gov*2},
+        flags:[...(v.legal>=5?["legalHeavy"]:[]),...(Math.max(...Object.values(v))>=7?["allInOne"]:[])],
+        set:{blockade:true},
+        out:v.dialogue>=3?"Your team spends the week on the ground. The communities notice who shows up.":v.legal>=5?"Lawyers file complaints. The communities see it as the mine choosing a fight.":"The plan is in motion. The blockade continues."}; }},
+   {id:"s6",day:11,tag:"Day 11 · Call from Lima",
+    lines:()=>[N("Your phone rings. It's the vice minister of mines, the third one this year."),Q("vm","The President wants this resolved. We can declare a state of emergency and clear the road with police tomorrow."),Q("vm","Do you want that?")],
+    info:Q("lucia","Every forced clearance on this corridor has ended with injuries, and a longer blockade afterward."),
+    options:()=>[
+     {t:"Yes. Every day costs millions.",c:{stakeholder:-2,safety:-2,pressure:1},s:{D:1},eff:{trust:-20,gov:5},flag:"force",set:{cleared:true},out:"Police clear the road at dawn. Three people are injured. Two days later, a bigger blockade forms forty kilometers away."},
+     {t:"Not yet. Ask for a dialogue table with the Defensoría.",c:{stakeholder:2,strategic:2,pressure:1},s:{S:.6,I:.4},eff:{gov:3,trust:4},out:"The vice minister agrees, reluctantly. The clock is running."}]},
+   {id:"s7",day:12,tag:"Day 12 · Preparation",
+    lines:()=>[N("Before the dialogue table, you review the 2023 agreement with Ccollpa."),N("Look at the commitments. Which issue will drive the conversation?")],
+    extra:`<table class="data"><tr><th>Commitment</th><th>Promised</th><th>Status</th></tr>
+     <tr><td>Water reservoir</td><td>Dec 2024</td><td class="late">35% · 18 mo late</td></tr><tr><td>Local hiring</td><td>30 jobs/yr</td><td class="late">9 in 2025</td></tr>
+     <tr><td>Road watering</td><td>Daily</td><td class="late">3×/week</td></tr><tr><td>Scholarships</td><td>20/yr</td><td class="ok">22 granted</td></tr><tr><td>Crop dust study</td><td>By 2024</td><td class="late">Not started</td></tr></table>`,
+    options:()=>[
+     {t:"Scholarships. Lead with our best result.",c:{financial:-1,strategic:-1},s:{D:1},eff:{},out:"At the table, leading with scholarships looks like dodging the real issues."},
+     {t:"Reservoir and dust study: water and crops.",c:{financial:2,strategic:1},s:{A:1},eff:{trust:4},set:{prepared:true},out:"Good read. Together with the road watering, these explain the anger. They all touch water and crops."},
+     {t:"Local hiring: the biggest number gap.",c:{financial:1},s:{A:1},eff:{trust:1},out:"A real gap, but not the one hurting families most right now."},
+     {t:"All of them equally.",c:{strategic:-1},s:{S:1},eff:{},out:"Without priorities, the table gets lost in details."}]},
+   {id:"s8",day:14,tag:"Day 14 · The break",
+    lines:()=>[N("The dialogue table meets in the provincial capital. During a break, a community advisor takes you aside."),Q("adv","If the company covers the leaders' expenses, the road opens tomorrow. Fifty thousand dollars. Nobody will know.")],
+    options:()=>[
+     {t:"Decline. Propose an audited community fund.",c:{integrity:2,stakeholder:1,strategic:1},s:{S:.6,I:.4},eff:{trust:3},out:"The advisor shrugs. At the table, the community fund idea gets real interest."},
+     {t:"Pay. It's cheaper than one day of blockade.",c:{integrity:-3},s:{D:1},eff:{trust:-15,gov:-10},flag:"paid",set:{paid:true},out:"The road opens two days later. Within a month, the payment leaks on social media, and the vice minister distances himself."},
+     {t:"Decline, and report it to compliance.",c:{integrity:2,stakeholder:-1},s:{A:.6,S:.4},eff:{},out:"That's correct. But the advisor spreads word that you're against the community."}]},
+   {id:"s9",day:15,tag:"Day 15 · 2:00 a.m.",
+    lines:()=>[N("Two in the morning. A contractor's truck driver tries to force his way past a group of protesters."),N("There's a scuffle. A young man from Huaylla is hit, and taken to hospital. He's stable."),N("Your phone won't stop ringing.")],
+    info:Q("lucia","Legal says anything we say could be used in a case. But silence will be read as not caring."),
+    options:()=>[
+     {t:"Go to the hospital, stop convoys, acknowledge it publicly.",c:{stakeholder:2,integrity:2,safety:2,leadership:1},s:{I:.7,S:.3},eff:{trust:6},out:"His mother thanks you for coming. The tension drops noticeably."},
+     {t:"Say the protesters provoked the driver.",c:{integrity:-1,stakeholder:-2},s:{D:1},eff:{trust:-15},flag:"blame",out:"Your statement is shared next to the hospital photo. Outrage spreads to more communities."},
+     {t:"Say nothing until the investigation ends.",c:{stakeholder:-1,safety:1},s:{S:1},eff:{trust:-6},out:"Safe legally. But in the communities, the silence speaks loudly."}]},
+   {id:"s10",day:17,tag:"Day 17 · Promises come due",
+    lines:(s)=>s.flags.promise?[Q("rosa","You promised us forty jobs."),N("Carlos has confirmed it: the mine can safely train twelve drivers a year.")]
+     :[N("The fifteen-day plan is due. Twelve driver trainees a year, twenty local contractor jobs, and daily road watering with community monitors."),Q("rosa","It's a start. But we need more.")],
+    options:(s)=>s.flags.promise?[
+     {t:"Admit you over-promised. Offer 12 + 20 contractor jobs.",c:{integrity:2,adaptability:2,stakeholder:1},s:{S:.6,I:.4},eff:{trust:-3},out:"It stings. But Rosa says: at least now you're telling the truth."},
+     {t:"Insist the 40 jobs are coming soon.",c:{integrity:-2,strategic:-1},s:{D:1},eff:{trust:2},flag:"promise2",out:"It buys a few weeks. The problem just got bigger."},
+     {t:"Say operations didn't support it.",c:{leadership:-2,integrity:-1},s:{D:1},eff:{morale:-15,trust:-4},flag:"blameOps",out:"The community sees a divided company. Carlos stops returning your calls."}]:[
+     {t:"Present it, with a public commitment tracker.",c:{integrity:2,strategic:1,stakeholder:1},s:{A:1},eff:{trust:6},out:"The tracker surprises everyone. Rosa asks for a copy for the community assembly."},
+     {t:"Add 10 more spots ops hasn't agreed to.",c:{integrity:-1,pressure:1},s:{D:1},eff:{trust:5,morale:-6},flag:"promise",out:"The deal gets closer. Carlos finds out from the minutes."},
+     {t:"Let Ccollpa's youth co-design the training.",c:{stakeholder:2,adaptability:2},s:{I:1},eff:{trust:8,morale:3},out:"Twelve young people come to the first session. Even Carlos is impressed."}]},
+   {id:"s11",day:19,tag:"Day 19 · Sign today?",
+    lines:()=>[N("A deal is close."),Q("vm","We need a signature today. The President is waiting.")],
+    info:Q("lucia","Finance says the broad version costs about sixty million dollars over five years. Eleven of the eighteen commitments have no budget."),
+    options:()=>[
+     {t:"Sign today: 18 commitments, road opens tonight.",c:{pressure:1,strategic:-2,integrity:-1},s:{D:1},eff:{trust:5},flag:"broad",set:{broad:true},out:"Celebrations in the plaza. The trucks roll that night."},
+     {t:"Wait 3 days: 8 funded commitments + public tracker.",c:{strategic:2,integrity:2,pressure:1},s:{A:.6,S:.4},eff:{trust:3},out:"Three tense days. Then a signature everyone can actually keep."}]},
+   {id:"s12",day:22,tag:"Day 22 · Your team",
+    lines:()=>[N("The road is open. But Lucía has been threatened on social media, and she hasn't slept properly in weeks."),Q("lucia","I'm fine. Really.")],
+    options:()=>[
+     {t:"Rotate her out of the field for a month.",c:{leadership:1,safety:1},s:{S:1},eff:{morale:4},out:"She's relieved, but worried the community will feel abandoned."},
+     {t:"Keep her. The community trusts her.",c:{leadership:-1,pressure:1},s:{D:1},eff:{morale:-10},flag:"burnout",out:"She keeps going. Three weeks later, she goes on medical leave."},
+     {t:"Ask what she needs, add protection, share her load.",c:{leadership:2,safety:2},s:{I:1},eff:{morale:10},out:"She stays, with support. The team notices how you handled it."}]},
+   {id:"s13",day:30,tag:"Day 30 · The board",
+    lines:()=>[Q("board","Before we close: what is your one-line lesson from this crisis?")],
+    options:()=>[
+     {t:"\"The blockade was illegal and we held firm.\"",c:{strategic:-1,stakeholder:-1},s:{D:1},eff:{},out:"A few board members nod. Others look uneasy."},
+     {t:"\"We were late on our own promises. Now we track every one publicly.\"",c:{strategic:2,integrity:2},s:{A:.6,S:.4},eff:{},out:"The chair asks you to present the tracker at the next meeting."},
+     {t:"\"It was mostly political noise.\"",c:{strategic:-1,adaptability:-1},s:{S:.5,D:.5},eff:{},out:"The board moves on. Nothing changes."},
+     {t:"\"Trust is built before a crisis: monthly visits to all 11 communities.\"",c:{strategic:2,stakeholder:2},s:{I:.6,S:.4},eff:{},out:"The CEO says: let's fund it."}]}
+  ]
+};
+</script>
+<script src="../shared/engine.js"></script>
+</body>
+</html>

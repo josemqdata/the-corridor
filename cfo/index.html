@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Corridor — Finance & Commercial (CFO)</title>
+<link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="../shared/base.js"></script>
+<script src="../shared/art.js"></script>
+<script>
+const SUITS=["#2b2f3a","#3a3f4a","#1f2329","#4a3f3a","#2f3a4a"];
+function office(t="day"){ return `${room("#3d4450","#272c34")}${windowView(20,25,200,130,t,skyline(t))}`; }
+function boardroom(trend){ return `${room("#3a3f4a","#262a31")}${screenChart(125,22,150,85,trend||"up","")}${crowd(60,190,8,290,1.6,{hats:false,ties:true,pal:SUITS})}${tableLong(190)}`; }
+function covenantBreached(S){ return !!(S.flags.mislead||S.flags.quietFix||(S.set.full&&S.set.fall&&!S.set.hedged&&!S.set.policy)); }
+
+window.CFG={
+  DOMAIN:"Finance & Commercial (CFO)",
+  INTRO:{title:"45 days as CFO of a Peruvian copper mine",body:"Strong copper prices, tight cash, a big expansion on the table and a loan covenant you can't break. Then the road gets blocked. Watch each scene, listen, and make the call <b>you</b> would really make."},
+  ASK_LABEL:"Ask Mariana first",
+  END_TAG:"Day 45 · Your first quarter is over",
+  INIT:{cash:60,board:55,lender:60,morale:60},
+  METERS:[{k:"cash",label:"Cash"},{k:"board",label:"Board"},{k:"lender",label:"Banks"},{k:"morale",label:"Team"}],
+  TARGET:{financial:85,integrity:85,strategic:75,stakeholder:60,pressure:60,leadership:55,adaptability:50},
+  NAMES:{nar:"Narrator",ceo:"Andrés · CEO",mariana:"Mariana · your Treasurer",banker:"Relationship manager · lead bank",site:"Site manager",union:"Union leader",carlos:"Carlos · VP Operations",chair:"Board chair"},
+  VOICE:{nar:{g:"f",p:1,r:1},ceo:{g:"m",p:.9,r:1},mariana:{g:"f",p:1.15,r:1.05},banker:{g:"m",p:1.05,r:1.08},site:{g:"m",p:.8,r:1},union:{g:"m",p:.72,r:.95},carlos:{g:"m",p:.85,r:1.02},chair:{g:"f",p:.88,r:.95}},
+  PORTRAITS:{
+    nar:{bg:"#333a46",skin:"#c99a72",hair:"#2b2b2b",top:"#555"},
+    ceo:{bg:"#5b6b82",skin:"#c99a72",hair:"#8a8a8a",top:"#22252b",extra:`<path d="M40,62 l-4,6 4,14 4,-14z" fill="#2a6f6a"/>`},
+    mariana:{bg:"#8f5fa8",skin:"#b88560",hair:"#1d1410",top:"#2a6f6a",extra:`<path d="M23,34 q17,-30 34,0 v14 q-4,-10 -4,-14 h-26 q0,4 -4,14z" fill="#1d1410"/><circle cx="34" cy="35" r="5" fill="none" stroke="#222" stroke-width="1.5"/><circle cx="46" cy="35" r="5" fill="none" stroke="#222" stroke-width="1.5"/>`},
+    banker:{bg:"#2f5d8a",skin:"#d0a882",hair:"#3a2a20",top:"#1f2a3a",extra:`<path d="M40,62 l-4,6 4,14 4,-14z" fill="#c9a227"/>`},
+    site:{bg:"#8a6d3b",skin:"#a87452",hair:"#222",top:"#e07a3f",extra:`<path d="M22,30 a18,18 0 0 1 36,0 z" fill="#f2f2f2"/><rect x="20" y="28" width="40" height="4" fill="#ddd"/>`},
+    union:{bg:"#a83a3a",skin:"#8a5a3c",hair:"#222",top:"#3c6fb0",extra:`<path d="M22,30 a18,18 0 0 1 36,0 z" fill="#f2c94c"/><rect x="20" y="28" width="40" height="4" fill="#d9b23e"/><path d="M30,52 q10,6 20,0" stroke="#222" stroke-width="3" fill="none"/>`},
+    carlos:{bg:"#3c6fb0",skin:"#c99a72",hair:"#3a2a20",top:"#e8b33a",extra:`<path d="M22,30 a18,18 0 0 1 36,0 z" fill="#f2f2f2"/><rect x="20" y="28" width="40" height="4" fill="#ddd"/>`},
+    chair:{bg:"#4a4a52",skin:"#e0b894",hair:"#d8d8d8",top:"#3a2a4a",extra:`<path d="M23,34 q17,-28 34,0 q0,10 -3,16 q0,-14 -14,-18 q-14,4 -14,18 q-3,-6 -3,-16z" fill="#d8d8d8"/>`}
+  },
+  RED_FLAGS:["mislead","aggressive","fixer","quietFix"],
+  FLAGS:{
+    overHedge:["Hedged 100% of production, more than the mine was sure to produce.","Do they understand volume risk in hedging? Ask how they size hedges."],
+    aggressive:["Agreed to book routine maintenance as capital investment to hit a cost target.","Serious accounting-integrity concern. Probe directly and check references."],
+    mislead:["Adjusted the forecast sent to lenders to avoid a covenant waiver.","Serious integrity concern with lenders. Probe directly."],
+    fixer:["Was willing to use an intermediary to 'fix' a tax dispute.","Serious compliance concern. Probe directly and check references."],
+    ignorePolicy:["Dismissed a major policy risk without any analysis.","How do they track political and regulatory risk?"],
+    hideRisk:["Removed the downside scenario from the board materials.","Will they tell the board bad news? Ask for an example."],
+    localSuppliers:["Paid large international suppliers before small local ones during a cash squeeze.","Do they see the social side of payment decisions?"],
+    squeezeSuppliers:["Relied heavily on delaying supplier payments to protect cash.","How do they balance liquidity against supplier relationships?"],
+    quietFix:["Fixed a reporting error to the banks quietly instead of disclosing it.","Serious integrity concern. Probe how they handle errors in external reports."],
+    blameTeam:["Named a team member to the banks as responsible for an error.","Accountability: who owns mistakes in their team?"],
+    allInOne:["Put almost everything into one lever during the cash crunch.","How do they balance several levers at once?"]
+  },
+  onChoose(S,sc){ if(sc.id==="c13") S.set.fall=Math.random()<.5; },
+  endStat:S=>[covenantBreached(S)?"Breached":"OK","loan covenant"],
+  endArt:S=>covenantBreached(S)?boardroom("down"):office("dusk"),
+  ending(S){
+    const p=[];
+    if(S.set.fall){ p.push("Three months later, copper falls 20%.");
+      if(S.flags.overHedge) p.push("Your 100% hedge protects the price, but a second blockade cuts output, and you owe money on copper you never produced.");
+      else if(S.set.hedged) p.push("Your partial hedge puts a floor under cash flow, exactly as designed.");
+      else if(S.set.policy) p.push("The new hedging policy kicked in just in time to protect part of next year.");
+      else p.push("Unhedged, cash falls fast.");
+    } else { p.push("Copper keeps rising for another quarter.");
+      if(S.flags.overHedge) p.push("Your 100% hedge means you miss the rally entirely, and the board asks why.");
+      else if(S.set.hedged) p.push("Your partial hedge gives up a little upside, which is the price of protection.");
+      else p.push("Unhedged, you capture the whole rally, this time.");
+    }
+    if(S.flags.mislead||S.flags.quietFix) p.push("The auditors find the gap between what the banks were told and the real numbers. The bank calls a technical default, and your credibility takes the hit.");
+    else if(covenantBreached(S)) p.push("The full expansion plus falling copper pushes debt over three times EBITDA. You need an emergency waiver.");
+    else p.push("You stay inside the loan covenant.");
+    if(S.set.phased) p.push("The phased expansion keeps moving without putting the balance sheet at risk.");
+    if(S.flags.aggressive) p.push("In the annual audit, the twelve million dollar reclassification is reversed, and the audit committee wants answers.");
+    if(S.flags.fixer) p.push("The intermediary's 'success fee' becomes a compliance investigation.");
+    p.push(S.v.board>=65?"The board ends the quarter <b>confident</b> in its new CFO.":S.v.board>=40?"The board is <b>cautious</b> about its new CFO.":"The board has <b>lost confidence</b> in its new CFO.");
+    return p.join(" ");
+  },
+  ART:{
+    c1:()=>`${office("day")}${laptop(250,135,.9,`<g transform="translate(0,0)">${sheetRows()}</g>`)}<rect x="230" y="210" width="170" height="10" fill="#1d2026"/>${person(330,210,2.3,"#22252b",{tie:true,skin:"#c99a72"})}`,
+    c2:()=>`${room("#2a2f3a","#1c2028")}${laptop(40,70,1.25,sheetRows())}${screenChart(220,40,160,100,"flat","DEBT / EBITDA")}<line x1="220" y1="95" x2="380" y2="95" stroke="#e05a4f" stroke-width="2" stroke-dasharray="5 4" class="blink"/><text x="376" y="91" text-anchor="end" font-size="8" fill="#e05a4f" font-family="sans-serif" font-weight="800">LIMIT 3.0x</text>`,
+    c3:()=>`${sky("dusk")}${mountains("dusk")}${ground("dusk")}${road("dusk")}${rocks(150,206)}${fire(130,210)}${crowd(100,222,10,200,1.1,{arms:true})}${stoppedTruck(300,188,.6)}${stoppedTruck(345,186,.55)}${coins(40,150,4,"coinfall")}`,
+    c4:()=>`${room("#1f2430","#151820")}${screenChart(60,25,280,160,"spike","COPPER $/lb")}${ticker(212,"CU 5.82 ▲3.1%  ·  RECORD HIGH  ·  LME CLOSE  ·  PEN/USD 3.71")}`,
+    c5:()=>`${office("night")}${laptop(240,130,.95,sheetRows())}<rect x="220" y="208" width="180" height="10" fill="#1d2026"/>${person(110,215,2.4,"#e07a3f",{hat:"helmet",arm:true})}`,
+    c6:()=>`${sky("day")}<rect y="200" width="${W}" height="50" fill="#8a8f96"/>${bank(20,200,1.2,"LEAD BANK")}${phoneBig(250,30,"Lead Bank","Relationship manager")}`,
+    c7:(s)=>s.variant==="a"
+      ? `${skyline("day")}${bubble(30,40,"BREAKING: Windfall tax on mining?",0,"#e05a4f","#fff")}${bubble(80,72,"Investors react",1,"#dcf8c6")}${bubble(50,104,"Copper stocks fall",2,"#dcf8c6")}${ticker(232,"MINING STOCKS ▼4.2%  ·  CONGRESS DEBATES WINDFALL TAX  ·  CU 5.79")}`
+      : `${office("day")}<g transform="translate(240,60)" class="bob"><rect width="120" height="150" fill="#fbf8f1"/><rect x="10" y="12" width="60" height="10" fill="#b5262b"/><text x="40" y="20" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="800">TAX NOTICE</text>${[0,1,2,3,4,5].map(i=>`<rect x="10" y="${34+i*14}" width="${i===3?60:100}" height="5" fill="#c8c1b4"/>`).join("")}<text x="60" y="135" text-anchor="middle" font-size="12" font-weight="800" fill="#b5262b" font-family="sans-serif">US$35M</text></g>`,
+    c8:()=>`${sky("day")}${mountains("day")}${ground("day")}${banner(60,200,"BONO YA")}${banner(250,198,"¡JUSTICIA!")}${crowd(30,214,14,340,1.15,{arms:true,helmets:true,pal:["#e07a3f","#3c6fb0","#e8b33a","#2a6f6a"]})}`,
+    c9:()=>`${office("dusk")}${laptop(230,110,1.1,`<rect x="5" y="5" width="110" height="66" fill="#1a2433"/><polyline points="15,25 40,30 60,45 85,50 105,62" stroke="#e05a4f" stroke-width="3" fill="none"/><text x="60" y="18" font-size="8" fill="#e05a4f" text-anchor="middle" font-family="sans-serif" font-weight="800" class="blink">LOW CASE</text>`)}`,
+    c10:()=>boardroom("up"),
+    c11:()=>`${sky("day")}${mountains("day")}${ground("day")}${road("day")}${house(30,200,.9)}${house(70,196,.8)}${stoppedTruck(150,212,.8)}${stoppedTruck(225,204,.7)}${coins(330,215,3)}${coins(355,215,6)}`,
+    c12:()=>`${room("#272b33","#1a1d22")}${windowView(250,30,120,90,"night",skyline("night"))}<rect x="60" y="170" width="200" height="12" fill="#3a3f48"/>${person(150,172,2.2,"#2a6f6a",{skin:"#b88560"})}${laptop(170,120,.5,sheetRows())}`,
+    c13:()=>boardroom("flat")
+  },
+  SCENES:[
+   {id:"c1",day:1,tag:"Day 1 · New CFO",
+    lines:()=>[N("You are the new CFO of Minera Altavista, a copper mine in the southern Andes, with headquarters in Lima."),N("Copper is strong, but cash is tight: one hundred eighty million dollars in the bank, and a six hundred million dollar loan."),N("The loan has a covenant: debt must stay below three times EBITDA. Today you're at two point six."),Q("ceo","The board wants to approve our four hundred fifty million dollar expansion next month. I need you on board.")],
+    info:Q("mariana","Our cost model hasn't been updated since copper was four dollars. And it has no blockade scenario."),
+    options:()=>[
+     {t:"Back it now. Momentum matters.",c:{pressure:1,strategic:-1,financial:-1},s:{D:1},eff:{board:6},out:"The CEO is pleased. Mariana looks worried."},
+     {t:"Ask for 3 weeks to rebuild the model with scenarios.",c:{financial:2,strategic:1},s:{A:1},eff:{board:-2},set:{model:true},out:"The CEO agrees, a little impatient. Mariana starts that night."},
+     {t:"Meet the banks first to understand their limits.",c:{stakeholder:2,strategic:1},s:{I:.7,A:.3},eff:{lender:6},out:"The bank appreciates the early call. Their message: no surprises, please."},
+     {t:"Support it, but propose doing it in phases.",c:{strategic:2,financial:1},s:{S:1},eff:{board:2},out:"The CEO says: interesting. Bring me the numbers."}]},
+
+   {id:"c2",day:6,tag:"Day 6 · The scenarios",
+    lines:()=>[N("Mariana's model is ready. It shows debt to EBITDA after the expansion, in four scenarios."),N("The covenant limit is three point zero. What is the key message for the board?")],
+    extra:`<table class="data"><tr><th>Scenario</th><th>Copper</th><th>Debt / EBITDA</th></tr>
+      <tr><td>Base</td><td>$4.50/lb</td><td>2.8×</td></tr><tr><td>High</td><td>$5.20/lb</td><td class="ok">2.3×</td></tr>
+      <tr><td>Low</td><td>$3.80/lb</td><td class="late">3.6×</td></tr><tr><td>30-day blockade</td><td>$4.50/lb</td><td class="late">3.2×</td></tr></table>`,
+    options:()=>[
+     {t:"The base case works. Go ahead.",c:{financial:-1,strategic:-1},s:{D:1},eff:{},out:"That ignores two of the four scenarios, and both of them break the covenant."},
+     {t:"Low copper or a long blockade breaks the covenant. We need protection first.",c:{financial:2,strategic:2},s:{A:1},eff:{board:3},set:{readRisk:true},out:"Exactly. Two realistic scenarios break the limit. That's the real story."},
+     {t:"The high case shows big upside. Push it.",c:{financial:-2},s:{D:1},eff:{},out:"The upside is real. But a CFO's job is the downside."},
+     {t:"Currency is the biggest risk.",c:{financial:-1},s:{A:1},eff:{},out:"The table doesn't show currency at all. The data points elsewhere."}]},
+
+   {id:"c3",day:10,tag:"Day 10 · Blockade",type:"alloc",allocPrompt:"SPLIT 10 POINTS ACROSS YOUR CASH PLAN",
+    lines:()=>[N("Communities block the mining corridor. No concentrate can reach the port."),N("Each week, about twenty-eight million dollars of sales are delayed. Payroll and suppliers are still due."),Q("mariana","At this rate, our cash lasts about seven weeks."),N("Split ten points across your cash plan.")],
+    buckets:[{k:"credit",t:"Draw the credit line",d:"Borrow from the revolver now",short:"Credit line"},{k:"suppliers",t:"Stretch supplier payments",d:"Pay suppliers later",short:"Stretch suppliers"},{k:"cuts",t:"Cut non-essential spending",d:"Travel, consultants, small projects",short:"Cuts"},{k:"lenders",t:"Talk to the banks now",d:"Explain early, ask for flexibility",short:"Banks"}],
+    score(v){ const spread=Object.values(v).filter(x=>x>0).length;
+      return {c:{financial:(v.cuts>=2&&v.credit>=1)?2:(v.cuts>=1?1:0),stakeholder:v.lenders>=2?2:(v.lenders>=1?1:0),strategic:spread>=3?2:(spread===2?1:0),integrity:v.suppliers<=3?1:0},
+        ranges:{financial:[0,2],stakeholder:[0,2],strategic:[0,2],integrity:[0,1]},
+        style:{D:(v.credit+v.suppliers)/10,S:v.cuts/10,I:v.lenders/10},
+        eff:{cash:v.credit*2+v.cuts*2+v.suppliers*2-10,lender:v.lenders*3-(v.credit>=6?8:0)},
+        flags:[...(v.suppliers>=5?["squeezeSuppliers"]:[]),...(Math.max(...Object.values(v))>=7?["allInOne"]:[])],
+        out:v.lenders>=2?"The banks appreciate hearing it from you first. Cash is stable for now.":v.suppliers>=5?"Local suppliers start calling. Some are community businesses on the blocked road.":"Cash is stable for now. The blockade continues."}; }},
+
+   {id:"c4",day:14,tag:"Day 14 · Record copper",
+    lines:()=>[N("The blockade ends after twelve days. Meanwhile, copper hits a record high."),Q("mariana","We could lock in today's price for part of next year's production with a collar: a floor and a ceiling."),Q("ceo","Shareholders buy us for copper exposure. Don't kill the upside.")],
+    info:Q("mariana","If there's another blockade, we could produce fifteen percent less than planned. We shouldn't hedge more than we're sure to produce."),
+    options:()=>[
+     {t:"Hedge 100% of next year's production.",c:{financial:-2,pressure:1},s:{D:1},eff:{cash:2},flag:"overHedge",out:"Locked in. But if production falls short, you'll owe money on copper you never produced."},
+     {t:"Hedge about 30–40% with collars.",c:{financial:2,strategic:1},s:{A:1},eff:{board:2,lender:4},set:{hedged:true},out:"A floor under the downside, and most of the upside kept."},
+     {t:"No hedge. We're a copper company.",c:{pressure:1},s:{D:.6,S:.4},eff:{board:2},out:"The CEO is happy. You're fully exposed if prices fall."},
+     {t:"Get the board to approve a hedging policy first.",c:{strategic:2,integrity:1},s:{S:1},eff:{board:3},set:{policy:true},out:"It takes two weeks. The policy gives you clear limits from now on."}]},
+
+   {id:"c5",day:17,tag:"Day 17 · Quarter close",
+    lines:()=>[N("It's quarter close."),Q("site","Our cost per pound is over target. If we book twelve million dollars of maintenance as capital investment, we hit it. Everyone does it."),N("The site manager is waiting for your answer.")],
+    info:Q("mariana","That maintenance is routine. Under the accounting rules, it's an expense, not an investment."),
+    options:()=>[
+     {t:"Fine. It's a judgment call.",c:{integrity:-3},s:{D:1},eff:{board:4},flag:"aggressive",out:"The quarter looks clean. The auditors will look at this line in four months."},
+     {t:"No. Book it as an expense and explain the miss.",c:{integrity:2,leadership:1,pressure:1},s:{S:1},eff:{board:-3},out:"The miss is uncomfortable. But the board learns it can trust your numbers."},
+     {t:"Ask the auditors, and follow the rules.",c:{integrity:2,financial:1},s:{A:1},eff:{board:-1},out:"The auditors confirm it's an expense. Now the decision isn't personal."}]},
+
+   {id:"c6",day:20,tag:"Day 20 · The bank calls",
+    lines:()=>[N("Your relationship manager at the lead bank calls."),Q("banker","With the blockade, your ratio will be close to the limit. Between us: if your forecast shows two point nine, we don't need to talk about waivers."),N("Your honest forecast shows three point one.")],
+    options:()=>[
+     {t:"Send the honest 3.1× and ask for a waiver early.",c:{integrity:2,stakeholder:2},s:{I:.6,S:.4},eff:{lender:8,cash:-2},out:"There's a fee for the waiver. But the bank says: thank you for being straight with us."},
+     {t:"Adjust the forecast to 2.9×.",c:{integrity:-3},s:{D:1},eff:{lender:2},flag:"mislead",out:"No waiver needed, for now. The real number will show up in the audited accounts."},
+     {t:"Wait until the blockade numbers are final.",c:{pressure:-1,stakeholder:-1},s:{S:1},eff:{lender:-6},out:"The reporting deadline passes. The bank sends a formal letter asking why."}]},
+
+   {id:"c7",day:23,tag:"Day 23 · Breaking news",
+    lines:(s)=>s.variant==="a"
+      ?[N("Breaking news from Lima: a group in Congress proposes a windfall tax on mining profits when copper is above five dollars."),Q("ceo","Investors are calling. What do we say?")]
+      :[N("A letter arrives from SUNAT, the tax authority. They claim thirty-five million dollars in back taxes over a disputed deduction from 2023."),Q("ceo","Can we make this go away?")],
+    info:(s)=>s.variant==="a"?Q("mariana","Proposals like this have come up before. Many change a lot before they pass, or don't pass at all."):Q("mariana","Our tax lawyers think we have a strong case. Disputes like this usually go to appeal."),
+    options:(s)=>s.variant==="a"?[
+     {t:"Warn publicly that it will kill investment.",c:{stakeholder:-1,pressure:1},s:{D:1},eff:{board:1,lender:-2},out:"The quote goes viral. The government calls the company arrogant."},
+     {t:"Model it, give investors a range, and work through the industry association.",c:{financial:2,stakeholder:2,strategic:1},s:{A:.6,I:.4},eff:{board:5,lender:3},out:"Investors get clear numbers. The industry association leads the public debate, not you."},
+     {t:"Ignore it. It probably won't pass.",c:{strategic:-2},s:{S:1},eff:{},flag:"ignorePolicy",out:"Maybe. But the board asks why there was no analysis."}]:[
+     {t:"Hire a well-connected intermediary to fix it.",c:{integrity:-3},s:{D:1},eff:{},flag:"fixer",out:"The intermediary asks for a success fee, in cash. This is how scandals start."},
+     {t:"Set aside a provision, disclose it, and appeal.",c:{integrity:2,financial:2},s:{A:1},eff:{board:3,cash:-3},out:"It's a hit on paper. But it's clean, and the appeal is strong."},
+     {t:"Pay it immediately to avoid trouble.",c:{financial:-1,pressure:1},s:{S:1},eff:{cash:-12},out:"Thirty-five million dollars gone, on a case your lawyers think you could win."}]},
+
+   {id:"c8",day:26,tag:"Day 26 · The union",
+    lines:()=>[N("Workers see record copper prices on the news."),Q("union","Record prices, record profits, and nothing for us? Give us a bonus, or we strike next week."),Q("carlos","A strike now would cost more than the bonus. Just approve eight million.")],
+    options:()=>[
+     {t:"Approve the $8M bonus now.",c:{pressure:1,financial:-1},s:{D:1},eff:{cash:-8,morale:8},out:"No strike. The next day, the contractors' union asks for the same."},
+     {t:"Refuse. Cash is tight.",c:{leadership:-1,stakeholder:-1},s:{D:.5,S:.5},eff:{morale:-12},out:"The union sets a strike date."},
+     {t:"Open the numbers with the union. Offer a bonus tied to production and safety, paid when cash recovers.",c:{leadership:2,financial:1,stakeholder:2},s:{I:1},eff:{morale:6,cash:-3},out:"It takes two long meetings. Then the union signs."}]},
+
+   {id:"c9",day:30,tag:"Day 30 · The board deck",
+    lines:()=>[Q("ceo","Take the low copper scenario out of the board deck. It will scare them off the expansion."),N("The board meets in three days.")],
+    options:()=>[
+     {t:"Take it out. It's the CEO's call.",c:{integrity:-2,leadership:-1},s:{S:1},eff:{},flag:"hideRisk",out:"The deck looks clean. You know what's missing."},
+     {t:"Keep it, with your recommendation next to it.",c:{integrity:2,strategic:1,pressure:1},s:{A:.6,D:.4},eff:{board:4},out:"The CEO isn't happy. But he respects that you didn't fold."},
+     {t:"Move it to the appendix.",c:{stakeholder:1},s:{S:1},eff:{board:1},out:"A compromise. One board member finds it anyway, and asks why it was hidden."}]},
+
+   {id:"c10",day:33,tag:"Day 33 · The vote",
+    lines:()=>[N("The board meeting. The expansion vote."),Q("chair","CFO, what is your recommendation?")],
+    options:()=>[
+     {t:"Approve the full $450M now.",c:{strategic:-1,pressure:1},s:{D:1},eff:{board:3},set:{full:true},out:"Approved. Construction starts next month, with very little room for another shock."},
+     {t:"Approve $120M of early works now. The rest once there's room under the covenant.",c:{strategic:2,financial:2},s:{S:.6,A:.4},eff:{board:2,lender:5},set:{phased:true},out:"Approved. The project moves, and the balance sheet stays safe."}]},
+
+   {id:"c11",day:36,tag:"Day 36 · Who gets paid",
+    lines:()=>[N("Cash is still tight after the blockade. A transport cooperative owned by Ccollpa families hasn't been paid in sixty days."),Q("mariana","They say they'll join the next blockade if they're not paid."),N("International equipment suppliers are waiting too.")],
+    options:()=>[
+     {t:"Pay small local suppliers first.",c:{stakeholder:2,strategic:1},s:{I:1},eff:{cash:-3},out:"The cooperative is paid this week. Word gets around the communities quickly."},
+     {t:"Everyone waits equally.",c:{stakeholder:-1},s:{S:1},eff:{},out:"Fair on paper. In Ccollpa, it feels like the mine doesn't care."},
+     {t:"Pay the big international suppliers first.",c:{stakeholder:-2,strategic:-1},s:{D:1},eff:{cash:-6},flag:"localSuppliers",out:"The following Monday, the cooperative's trucks park across the road."}]},
+
+   {id:"c12",day:40,tag:"Day 40 · A mistake",
+    lines:()=>[Q("mariana","I found an error in my model. Last month's report to the banks overstated our cash by nine million dollars. I'm so sorry."),N("She looks terrified.")],
+    options:()=>[
+     {t:"Correct it with the banks today, take responsibility as CFO, and fix the review process.",c:{integrity:2,leadership:2},s:{S:1},eff:{lender:-2,morale:8},out:"The bank thanks you for flagging it first. Mariana will remember this."},
+     {t:"Fix it quietly in next month's report.",c:{integrity:-2},s:{D:1},eff:{},flag:"quietFix",out:"Nobody notices. For now."},
+     {t:"Correct it, and tell the banks it was Mariana's error.",c:{integrity:1,leadership:-2},s:{A:1},eff:{morale:-10,lender:1},flag:"blameTeam",out:"The banks are satisfied. Your team saw who you blamed."}]},
+
+   {id:"c13",day:45,tag:"Day 45 · The board",
+    lines:()=>[Q("chair","Before we close: what's your one-line lesson from your first forty-five days?")],
+    options:()=>[
+     {t:"\"Copper is strong. We should be bolder.\"",c:{strategic:-1},s:{D:1},eff:{},out:"Two directors nod. The audit chair doesn't."},
+     {t:"\"In Peru, blockades and price drops are base cases, not surprises. We plan for them.\"",c:{strategic:2,financial:1},s:{A:1},eff:{board:3},out:"The chair asks you to build that into the annual budget."},
+     {t:"\"No surprises: the board and the banks hear bad news from us first.\"",c:{integrity:2,stakeholder:1},s:{S:.5,I:.5},eff:{board:3},out:"The audit chair writes it down."},
+     {t:"\"Cash is king. Cut costs everywhere.\"",c:{strategic:-1},s:{S:.5,D:.5},eff:{},out:"The CEO frowns. Cutting everywhere means cutting the expansion too."}]}
+  ]
+};
+</script>
+<script src="../shared/engine.js"></script>
+</body>
+</html>
